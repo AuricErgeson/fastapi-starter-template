@@ -1,7 +1,7 @@
-# FastAPI Starter Template with Frontend Integration
+# FastAPI Starter Template
 
 ## Overview
-A full-stack starter template featuring a modern FastAPI backend with async database support and a responsive frontend presentation system for showcasing your projects.
+A modern, production-ready FastAPI starter template with async database support, structured architecture, and all essential tools pre-configured. Perfect for building scalable API backends.
 
 ## 🚀 Quick Start
 
@@ -25,156 +25,77 @@ pip install -e .
 
 ### 3. Database Setup
 ```bash
-# Run database migrations
+# Run database migrations (create first migration if needed)
 alembic upgrade head
 ```
 
 ### 4. Start Development Server
 ```bash
-# Backend API
 uvicorn app.main:app --reload
-
-# Frontend application will be served from /frontend directory
 ```
 
-## 📁 Project Structure
+Server will be available at `http://localhost:8000`
+
+## 📁 Actual Project Structure
 
 ```
-├── app/                    # FastAPI Backend
-│   ├── api/v1/            # API endpoints and routing
-│   │   └── routes/        # Route modules
-│   ├── core/              # Core configuration (settings.py:4)
-│   ├── db/                # Database configuration (session.py:5)
-│   ├── models/            # SQLAlchemy models
-│   └── schemas/           # Pydantic schemas
-├── frontend/              # Frontend Presentation System
-│   ├── presentations/     # HTML presentations
-│   ├── styles/           # CSS stylesheets
-│   └── scripts/          # JavaScript utilities
-├── alembic/              # Database migrations
-├── tests/                # Test directory
-└── docs/                 # Documentation
+fastapi-starter-template/
+├── .env.example             # Environment template
+├── pyproject.toml          # Python dependencies and configuration
+├── alembic.ini             # Alembic configuration
+├── README.md               # This file
+├── LICENSE                 # MIT License
+├── alembic/                # Database migrations
+│   ├── env.py              # Async migration setup
+│   └── versions/           # Migration files
+└── app/                    # FastAPI Application
+    ├── main.py             # Application entry point
+    ├── api/v1/             # API endpoints (v1)
+    │   ├── router.py       # Main API router (app/api/v1/router.py:5)
+    │   └── routes/         # Route modules
+    │       └── health.py   # Health check endpoint
+    ├── core/               # Core configuration
+    │   └── settings.py     # App settings (app/core/settings.py:4)
+    ├── db/                 # Database configuration
+    │   ├── base.py         # SQLAlchemy base class
+    │   └── session.py      # Async session setup (app/db/session.py:5)
+    ├── models/             # SQLAlchemy models (ready for your models)
+    └── schemas/            # Pydantic schemas (ready for your schemas)
 ```
 
-## 🛠️ Backend Architecture
+## 🛠️ Core Components
 
-### Core Configuration (`app/core/settings.py:4`)
-- Environment-based settings using Pydantic Settings
-- Database URL configuration
-- Debug mode and app name settings
+### Main Application (`app/main.py`)
+```python
+from fastapi import FastAPI
+from app.api.v1.router import api_router
+from app.core.settings import settings
+
+app = FastAPI(title=settings.app_name, debug=settings.debug)
+app.include_router(api_router)
+```
+
+### Configuration Management (`app/core/settings.py:4`)
+- Environment-based settings using Pydantic Settings v2
+- Loads from `.env` file automatically
+- Configurable app name, debug mode, and database URL
 
 ### Database Layer (`app/db/session.py:5`)
 - Async SQLAlchemy engine with asyncpg driver
 - Async session management with dependency injection
-- Declarative base model setup
+- Declarative base model setup (`app/db/base.py`)
 
 ### API Structure (`app/api/v1/router.py:5`)
 - Versioned API routing with `/api/v1` prefix
 - Modular route inclusion system
-- Health check endpoint available at `/api/v1/health`
+- Currently includes health check endpoint at `/api/v1/health`
 
-## 🎨 Frontend Presentation System
+### Alembic Migrations (`alembic/env.py`)
+- Async-compatible database migrations
+- Integrated with application settings
+- Auto-generate migrations from model changes
 
-### Creating Presentations
-```bash
-# Create a new presentation
-python scripts/create_presentation.py --name "Project Demo" --output frontend/presentations/
-
-# Convert PowerPoint to web format
-python scripts/convert_ppt.py --input presentation.pptx --output frontend/presentations/
-```
-
-### Presentation Features
-- **Zero Dependencies**: Single HTML files with inline CSS/JS
-- **Responsive Design**: Fit-to-viewport with 100vh/100dvh constraints
-- **Animation Rich**: CSS animations with prefers-reduced-motion support
-- **In-Browser Editing**: Edit text directly in browser (optional)
-
-### Presentation Types
-1. **Project Showcase**: Pitch decks for demos and presentations
-2. **API Documentation**: Interactive API documentation slides
-3. **Development Workflow**: Team process and architecture overviews
-4. **Feature Walkthroughs**: Step-by-step feature demonstrations
-
-### Viewport Fitting Rules (NON-NEGOTIABLE)
-Every slide follows these invariants:
-- `.slide` must have `height: 100vh; height: 100dvh; overflow: hidden;`
-- Font sizes use `clamp(min, preferred, max)` - never fixed px/rem
-- Images: `max-height: min(50vh, 400px)`
-- Breakpoints for heights: 700px, 600px, 500px
-
-### Content Density Limits
-| Slide Type | Maximum Content |
-|------------|-----------------|
-| Title slide | 1 heading + 1 subtitle |
-| Content slide | 1 heading + 4-6 bullet points |
-| Feature grid | 1 heading + 6 cards maximum |
-| Code slide | 1 heading + 8-10 lines of code |
-| Image slide | 1 heading + 1 image (max 60vh height) |
-
-**Content exceeds limits? Split into multiple slides. Never cram, never scroll.**
-
-## 🔧 Development Workflow
-
-### Database Migrations
-```bash
-# Create new migration
-alembic revision --autogenerate -m "Description"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback migration
-alembic downgrade -1
-```
-
-### Testing
-```bash
-# Run tests
-pytest
-
-# Run tests with coverage
-pytest --cov=app tests/
-```
-
-### Code Quality
-```bash
-# Format code
-black app/
-
-# Sort imports
-isort app/
-
-# Type checking
-mypy app/
-```
-
-## 💡 Frontend Design Principles
-
-### 1. Zero-Dependency Architecture
-- Single self-contained HTML files
-- Inline CSS and JavaScript
-- No npm, no build tools required
-
-### 2. Show, Don't Tell
-- Generate visual previews before committing to design
-- Users discover preferences by seeing options
-- Avoid abstract design discussions
-
-### 3. Distinctive Aesthetics
-- **Typography**: Choose beautiful, unique fonts (avoid generic Arial/Inter)
-- **Color & Theme**: Cohesive palettes with sharp accents
-- **Motion**: CSS animations with proper timing and delays
-- **Backgrounds**: Layered gradients and geometric patterns
-
-### 4. Avoid AI Slop
-- ❌ Overused font families (Inter, Roboto, system fonts)
-- ❌ Cliched color schemes (purple gradients on white)
-- ❌ Predictable layouts
-- ✅ Creative, context-specific designs
-- ✅ Unexpected choices that feel genuinely designed
-
-## 📊 API Endpoints
+## 🌐 API Endpoints
 
 ### Health Check
 ```
@@ -182,50 +103,85 @@ GET /api/v1/health
 Response: {"status": "ok"}
 ```
 
-### Frontend Presentations
-```
-GET /presentations/{name}.html
-Response: HTML presentation with embedded CSS/JS
-```
-
-## 🚀 Deployment
-
-### Backend Deployment
+Test with:
 ```bash
-# Production server with Gunicorn
-gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
-
-# Docker deployment
-docker build -t fastapi-app .
-docker run -p 8000:8000 fastapi-app
+curl http://localhost:8000/api/v1/health
 ```
 
-### Frontend Deployment
-- Presentations are static HTML files
-- Deploy to any static hosting (Netlify, Vercel, GitHub Pages)
-- CDN for global distribution
+## 📦 Dependencies
+
+### Core Dependencies
+- `fastapi>=0.111.0` - Modern web framework
+- `uvicorn[standard]>=0.30.0` - ASGI server
+- `sqlalchemy>=2.0.0` - Async ORM with SQLAlchemy 2.0
+- `alembic>=1.13.0` - Database migrations
+- `asyncpg>=0.29.0` - Async PostgreSQL driver
+- `pydantic-settings>=2.0.0` - Settings management
+- `python-dotenv>=1.0.0` - Environment variables
+
+### Development Dependencies
+- `httpx>=0.27.0` - Async HTTP client for testing
+- `pytest>=8.0.0` - Testing framework
+- `pytest-asyncio>=0.23.0` - Async test support
+
+### Build System
+- Uses `uv` - modern Python package manager
+- Lock file: `uv.lock`
 
 ## 🔄 Database Support
 
-The template supports:
-- PostgreSQL (async via asyncpg) - Default
-- SQLite (for development/testing)
-- MySQL (with async support)
-
-Configure in `.env`:
+### PostgreSQL (Recommended)
 ```env
-# PostgreSQL (recommended)
 DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/dbname
+```
 
-# SQLite
+### SQLite (Development/Testing)
+```env
 DATABASE_URL=sqlite+aiosqlite:///./app.db
 ```
 
-## 🧪 Testing Setup
-
-### Backend Tests
+### Create Your First Model
 ```python
-# tests/test_api.py
+# app/models/user.py
+from sqlalchemy import String, Integer
+from sqlalchemy.orm import Mapped, mapped_column
+from app.db.base import Base
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String)
+    is_active: Mapped[bool] = mapped_column(default=True)
+```
+
+### Generate Migration
+```bash
+# After adding your model
+alembic revision --autogenerate -m "Add users table"
+alembic upgrade head
+```
+
+## 🧪 Testing
+
+### Run Tests
+```bash
+pytest
+```
+
+### Test Structure (To be created)
+```
+tests/
+├── conftest.py          # Test fixtures
+├── test_api/           # API endpoint tests
+├── test_models/        # Model tests
+└── test_db/           # Database tests
+```
+
+### Example Test
+```python
+# tests/test_api/test_health.py
 import pytest
 from httpx import AsyncClient
 from app.main import app
@@ -238,81 +194,182 @@ async def test_health_check():
         assert response.json() == {"status": "ok"}
 ```
 
-### Frontend Tests
-- Browser testing with Playwright
-- Visual regression testing
-- Accessibility audits
+## 🚀 Development Workflow
 
-## 🎯 Best Practices
-
-### Backend
-- Use async/await for database operations
-- Implement proper error handling
-- Add API versioning from the start
-- Document endpoints with OpenAPI/Swagger
-
-### Frontend
-- Always test viewport fitting at 1280x720
-- Include `prefers-reduced-motion` support
-- Use semantic HTML elements
-- Optimize images before embedding
-
-### Security
-- Environment variables for secrets
-- Input validation with Pydantic
-- CORS configuration for frontend access
-- Rate limiting for API endpoints
-
-## 📈 Monitoring & Observability
-
-### Backend Monitoring
+### 1. Add a New API Route
 ```python
-# app/core/monitoring.py
-import structlog
-from prometheus_fastapi_instrumentator import Instrumentator
+# app/api/v1/routes/users.py
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import get_db
 
-logger = structlog.get_logger()
-instrumentator = Instrumentator()
+router = APIRouter()
+
+@router.get("/users")
+async def get_users(db: AsyncSession = Depends(get_db)):
+    return {"users": []}
 ```
 
-### Frontend Analytics
-- Custom event tracking for presentation interactions
-- Performance monitoring with Web Vitals
-- Error tracking with Sentry
+```python
+# app/api/v1/router.py - Add to imports
+from app.api.v1.routes.users import router as users_router
 
-## 🤝 Contributing
+# Add to router
+api_router.include_router(users_router, prefix="/users", tags=["users"])
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+### 2. Create Pydantic Schemas
+```python
+# app/schemas/user.py
+from pydantic import BaseModel, EmailStr
 
-### Commit Guidelines
-- `feat: ` New feature
-- `fix: ` Bug fix
-- `docs: ` Documentation
-- `style: ` Code style (formatting, etc.)
-- `refactor: ` Code refactoring
-- `test: ` Adding tests
-- `chore: ` Maintenance tasks
+class UserBase(BaseModel):
+    email: EmailStr
 
-## 📚 Additional Resources
+class UserCreate(UserBase):
+    password: str
 
-### Backend Development
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
-- [Alembic Documentation](https://alembic.sqlalchemy.org/)
+class User(UserBase):
+    id: int
+    is_active: bool
+    
+    class Config:
+        from_attributes = True
+```
 
-### Frontend Presentation
-- [CSS Tricks: Viewport Units](https://css-tricks.com/fun-viewport-units/)
-- [MDN: CSS clamp()](https://developer.mozilla.org/en-US/docs/Web/CSS/clamp)
-- [A Complete Guide to CSS Media Queries](https://css-tricks.com/a-complete-guide-to-css-media-queries/)
+### 3. Run Development Server with Auto-Reload
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-### Design Inspiration
-- [Fontshare](https://www.fontshare.com/) - Beautiful free fonts
-- [Coolors](https://coolors.co/) - Color palette generator
-- [UI Movement](https://uimovement.com/) - UI animation inspiration
+## 📊 Development Tools
+
+### Code Quality
+```bash
+# Format code (install black first)
+black app/
+
+# Sort imports (install isort first)
+isort app/
+
+# Type checking (install mypy first)
+mypy app/
+```
+
+### Database Operations
+```bash
+# Create new migration
+alembic revision --autogenerate -m "Description"
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback migration
+alembic downgrade -1
+
+# Show migration history
+alembic history --verbose
+```
+
+### Interactive API Documentation
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+- OpenAPI JSON: `http://localhost:8000/openapi.json`
+
+## 🚢 Deployment
+
+### Production Server
+```bash
+# Install production dependencies
+pip install gunicorn
+
+# Run with Gunicorn
+gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
+```
+
+### Docker Deployment
+```dockerfile
+# Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install uv
+RUN pip install uv
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies
+RUN uv sync --frozen
+
+# Copy application code
+COPY . .
+
+# Run migrations and start server
+CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+### Environment Variables for Production
+```env
+APP_NAME="FastAPI Production"
+DEBUG=False
+DATABASE_URL=postgresql+asyncpg://user:password@production-db/dbname
+```
+
+## 🔧 Configuration
+
+### Settings (`app/core/settings.py:4`)
+The application uses Pydantic Settings which automatically:
+1. Loads from `.env` file
+2. Validates environment variables
+3. Provides type hints and auto-completion
+4. Supports nested settings models
+
+### Customize Settings
+```python
+# app/core/settings.py
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class Settings(BaseSettings):
+    app_name: str = "FastAPI Starter"
+    debug: bool = False
+    database_url: str
+    api_prefix: str = "/api/v1"
+    
+    # Add your custom settings
+    secret_key: str
+    allowed_hosts: list[str] = ["localhost", "127.0.0.1"]
+    
+    model_config = SettingsConfigDict(env_file=".env")
+```
+
+## 🎯 Best Practices Implemented
+
+### Backend Architecture
+- ✅ Async/await for all database operations
+- ✅ Dependency injection for database sessions
+- ✅ Versioned API from the start
+- ✅ Environment-based configuration
+- ✅ Modular route structure
+
+### Database
+- ✅ Async SQLAlchemy 2.0
+- ✅ Alembic migrations
+- ✅ PostgreSQL with asyncpg (production-ready)
+- ✅ SQLite for development/testing
+
+### Development Experience
+- ✅ Auto-reload during development
+- ✅ Interactive API documentation
+- ✅ Structured project layout
+- ✅ Modern dependency management with `uv`
+
+### Security
+- ✅ Environment variables for secrets
+- ✅ Input validation via Pydantic
+- ✅ Async database operations
+- ✅ CORS configurable via settings
 
 ## 🆘 Troubleshooting
 
@@ -321,7 +378,7 @@ instrumentator = Instrumentator()
 **Database Connection Failed**
 ```bash
 # Check PostgreSQL is running
-sudo service postgresql status
+pg_isready -h localhost -p 5432
 
 # Test connection
 psql -U postgres -h localhost
@@ -334,16 +391,45 @@ alembic downgrade base
 alembic upgrade head
 ```
 
-**Frontend Not Loading**
-- Check browser console for errors
-- Verify file paths are correct
-- Ensure CORS is configured
+**Dependency Issues**
+```bash
+# Clean install with uv
+uv sync --clean
+```
+
+**Port Already in Use**
+```bash
+# Find and kill process on port 8000
+lsof -ti:8000 | xargs kill -9
+```
 
 ### Getting Help
-1. Check the troubleshooting section above
-2. Review the example `.env` configuration
-3. Look at existing test cases
-4. Search closed issues
+1. Check the interactive docs at `http://localhost:8000/docs`
+2. Review the `.env.example` file for required variables
+3. Check Alembic logs in `alembic.ini`
+4. Enable debug mode in `.env`: `DEBUG=True`
+
+## 📈 Next Steps
+
+### 1. Add Authentication
+- JWT token-based auth
+- OAuth2 with password flow
+- User registration/login endpoints
+
+### 2. Implement CRUD Operations
+- Complete user management
+- Resource creation/updating/deletion
+- Pagination and filtering
+
+### 3. Add Monitoring
+- Health checks and metrics
+- Logging configuration
+- Error tracking
+
+### 4. Create Test Suite
+- Unit tests for models
+- Integration tests for API
+- Database test fixtures
 
 ## 📄 License
 
@@ -351,10 +437,22 @@ MIT License - see LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
-- FastAPI framework by Sebastián Ramírez
-- Frontend Slides skill for presentation system
-- All contributors and maintainers
+- [FastAPI](https://fastapi.tiangolo.com/) by Sebastián Ramírez
+- [SQLAlchemy](https://www.sqlalchemy.org/) for the ORM
+- [Alembic](https://alembic.sqlalchemy.org/) for migrations
+- [Pydantic](https://docs.pydantic.dev/) for data validation
 
 ---
 
-**Ready to start?** Run `cp .env.example .env` and customize your settings!
+**Happy Coding!** 🚀
+
+Start by creating your first model and migration:
+```bash
+# 1. Edit app/models/__init__.py to import your models
+# 2. Create alembic migration
+alembic revision --autogenerate -m "Initial models"
+# 3. Apply migration
+alembic upgrade head
+# 4. Run the server
+uvicorn app.main:app --reload
+```
